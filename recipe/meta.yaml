@@ -15,17 +15,24 @@ source:
 build:
   merge_build_host: true  # [win]
   number: 1
-  noarch: generic
+  # Only building r packages for win64, linux64, osx64
+  skip: True # [aarch64 or s390x or ppc64le or arm64]
+
   rpaths:
     - lib/R/lib/
     - lib/
+
+  # weird error on windows
+  missing_dso_whitelist:
+    - $RPATH/R.dll  # [win]
+
 
 requirements:
   build:
     - {{ posix }}zip               # [win]
     - cross-r-base {{ r_base }}    # [build_platform != target_platform]
   host:
-    - r-base
+    - r-base {{ r_version }}
     - r-brio
     - r-desc
     - r-digest
@@ -37,7 +44,7 @@ requirements:
     - r-withr
     - r-yaml
   run:
-    - r-base
+    - r-base {{ r_version }}
     - r-brio
     - r-desc
     - r-digest
@@ -66,6 +73,12 @@ about:
 extra:
   recipe-maintainers:
     - conda-forge/r
+  anaconda-services:
+    ref:  https://anaconda.zendesk.com/agent/tickets/35116
+    reason: "needed for r-devtools"
+    recipe-maintainers:
+      - bkreider
+
 
 # Package: downlit
 # Title: Syntax Highlighting and Automatic Linking
